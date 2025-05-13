@@ -1,0 +1,56 @@
+import java.time.format.DateTimeFormatter;
+import java.util.Scanner;
+import utils.FileUtils;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        MyDiary diary = new MyDiary();
+
+        System.out.print("завантажити щоденник з файлу? (так/ні): ");
+        String answer = scanner.nextLine();
+        if (answer.equalsIgnoreCase("так")) {
+            System.out.print("введіть шлях до файлу: ");
+            String path = scanner.nextLine();
+            FileUtils.loadFromFile(path, diary);
+        }
+
+        System.out.print("введіть формат дати (наприклад РРРР-ММ-ДД): ");
+        String format = scanner.nextLine()
+                .replace("Р", "y").replace("М", "M").replace("Д", "d");
+        try {
+            diary.setUserFormatter(DateTimeFormatter.ofPattern(format));
+        } catch (Exception e) {
+            System.out.println("невірний формат, використовується стандартний РРРР-ММ-ДД");
+        }
+
+        int choice;
+        do {
+            System.out.println("\n\\\\оденник\n1.додати запис\n2.видалити запис\n3.переглянути записи\n4.вихід");
+            System.out.print("оберіть опцію: ");
+            while (!scanner.hasNextInt()) {
+                System.out.print("введіть число (1-4): ");
+                scanner.next();
+            }
+            choice = scanner.nextInt();
+            scanner.nextLine();
+
+            switch (choice) {
+                case 1 -> diary.addEntry(scanner);
+                case 2 -> diary.deleteEntry(scanner);
+                case 3 -> diary.viewEntries();
+                case 4 -> {
+                    System.out.print("зберегти щоденник у файл? (так/ні): ");
+                    String save = scanner.nextLine();
+                    if (save.equalsIgnoreCase("так")) {
+                        System.out.print("введіть шлях до файлу: ");
+                        String savePath = scanner.nextLine();
+                        FileUtils.saveToFile(savePath, diary);
+                    }
+                    System.out.println("bb!");
+                }
+                default -> System.out.println("invalidna опція,ще раз.");
+            }
+        } while (choice != 4);
+    }
+}
