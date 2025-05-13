@@ -1,0 +1,96 @@
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Scanner;
+
+public class MyDiary {
+    private static final int MAX_RECORDS = 50;
+    private final String[] dates = new String[MAX_RECORDS];
+    private final String[] entries = new String[MAX_RECORDS];
+    private int count = 0;
+
+    private DateTimeFormatter userFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    public static final DateTimeFormatter SAVE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+    public void setUserFormatter(DateTimeFormatter formatter) {
+        this.userFormatter = formatter;
+    }
+
+    public String getDate(int index) {
+        return dates[index];
+    }
+
+    public String getEntry(int index) {
+        return entries[index];
+    }
+
+    public int getCount() {
+        return count;
+    }
+
+    public void addRecord(String date, String entry) {
+        if (count < MAX_RECORDS) {
+            dates[count] = date;
+            entries[count] = entry;
+            count++;
+        }
+    }
+
+    public void addEntry(Scanner scanner) {
+        if (count >= MAX_RECORDS) {
+            System.out.println("щоденник повний. удаліть запис перед записуванням нового.");
+            return;
+        }
+
+        LocalDate today = LocalDate.now();
+        String date = today.format(SAVE_FORMATTER);
+
+        System.out.println("Введіть запис (кінець вводу — порожній рядок):");
+        StringBuilder entry = new StringBuilder();
+        while (true) {
+            String line = scanner.nextLine();
+            if (line.equals("")) break;
+            entry.append(line).append("\n");
+        }
+
+        addRecord(date, entry.toString());
+        System.out.println(" додано!");
+    }
+
+    public void deleteEntry(Scanner scanner) {
+        System.out.print("ведіть дату запису, який потрібно видалити (РРРР-ММ-ДД): ");
+        String input = scanner.nextLine();
+
+        for (int i = 0; i < count; i++) {
+            if (dates[i].equals(input)) {
+                for (int j = i; j < count - 1; j++) {
+                    dates[j] = dates[j + 1];
+                    entries[j] = entries[j + 1];
+                }
+                dates[count - 1] = null;
+                entries[count - 1] = null;
+                count--;
+                System.out.println("запис видалено.");
+                return;
+            }
+        }
+
+        System.out.println("записів з такою датою не знайдено.");
+    }
+
+    public void viewEntries() {
+        if (count == 0) {
+            System.out.println("щоденник пустий.");
+            return;
+        }
+
+        for (int i = 0; i < count; i++) {
+            try {
+                LocalDate dt = LocalDate.parse(dates[i], SAVE_FORMATTER);
+                System.out.println("дата: " + dt.format(userFormatter));
+            } catch (Exception e) {
+                System.out.println("дата: " + dates[i]);
+            }
+            System.out.println("запис:\n" + entries[i]);
+        }
+    }
+}
