@@ -1,0 +1,37 @@
+package utils;
+
+import java.io.*;
+import MyDiary;
+
+public class FileUtils {
+    public static void saveToFile(String path, MyDiary diary) {
+        try (PrintWriter writer = new PrintWriter(path)) {
+            for (int i = 0; i < diary.getCount(); i++) {
+                writer.println(diary.getDate(i));
+                writer.print(diary.getEntry(i));
+                writer.println();
+            }
+            System.out.println("збережено.");
+        } catch (Exception e) {
+            System.out.println("не вдалося зберегти: " + e.getMessage());
+        }
+    }
+
+    public static void loadFromFile(String path, MyDiary diary) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(path))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (diary.getCount() >= 50) break;
+                String dateLine = line;
+                StringBuilder entry = new StringBuilder();
+                while ((line = reader.readLine()) != null && !line.trim().isEmpty()) {
+                    entry.append(line).append("\n");
+                }
+                diary.addRecord(dateLine, entry.toString());
+            }
+            System.out.println("завантажено.");
+        } catch (Exception e) {
+            System.out.println("не вдалося завантажити: " + e.getMessage());
+        }
+    }
+}
